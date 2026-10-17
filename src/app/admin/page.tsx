@@ -4639,6 +4639,13 @@ function AdminPageClient() {
     <PageLayout activePath='/admin'>
       <div className='px-2 sm:px-10 py-4 sm:py-8'>
         <div className='max-w-[95%] mx-auto'>
+          <div className='mb-5 flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/5 px-4 py-3'>
+            <div className='flex-1'>
+              <div className='font-semibold text-gray-900 dark:text-gray-100'>短剧源管理</div>
+              <div className='text-xs text-gray-500 dark:text-gray-400 mt-1'>添加、编辑、启停短剧 CMS 数据源，网页及 TV 端共用</div>
+            </div>
+            <a href='/admin/shortdrama' className='px-4 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700'>进入管理</a>
+          </div>
           {/* 标题 + 重置配置按钮 */}
           <div className='flex items-center gap-2 mb-8'>
             <h1 className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
