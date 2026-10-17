@@ -48,11 +48,11 @@ function ShortDramaPlayClient(){
     if(Hls.isSupported()&&/\.m3u8(?:\?|$)/i.test(url)){
       hls=new Hls({enableWorker:true});
       hls.loadSource(url);hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED,()=>{void video.play().catch(()=>{});});
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>{void video.play().catch(()=>{ /* Autoplay may require a user gesture. */ });});
       hls.on(Hls.Events.ERROR,(_evt,data)=>{if(data.fatal)setError('播放失败：'+data.details);});
     }else{
       video.src=url;
-      void video.play().catch(()=>{});
+      void video.play().catch(()=>{ /* Autoplay may require a user gesture. */ });
     }
     return ()=>{hls?.destroy();video.pause();video.removeAttribute('src');video.load();};
   },[episodes,current]);
