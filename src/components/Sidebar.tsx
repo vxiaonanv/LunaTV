@@ -145,6 +145,11 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
       label: '综艺',
       href: '/douban?type=show',
     },
+    {
+      icon: Film,
+      label: '短剧',
+      href: '/shortdrama',
+    },
   ]);
 
   useEffect(() => {
