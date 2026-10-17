@@ -32,7 +32,18 @@ export async function GET(req:NextRequest){
     else{
       const categories=await dramaCategories(s);
       if(!categories.length)return {source:s.key,list:[],hasMore:false};
-      params.t=String(categories[0].type_id);
+      // CMS parent category may contain no direct videos. Query matching child categories.
+      const childCategories=categories.filter((c:{type_name:string})=>c.type_name!=='短剧');
+      const targets=childCategories.length?childCategories:categories;
+      const batches=await Promise.allSettled(targets.slice(0,12).map(async(c:{type_id:number})=>{
+        const data=await fetchCms(s,{ac:'detail',pg:String(page),t:String(c.type_id)});
+        return {items:Array.isArray(data.list)?data.list:[],hasMore:Number(data.page||1)<Number(data.pagecount||1)};
+      }));
+      const ok=batches.filter((r):r is PromiseFulfilledResult<{items:any[];hasMore:boolean}>=>r.status==='fulfilled');
+      if(!ok.length)throw new Error('All short drama categories failed');
+      const unique=new Map<string,any>();
+      ok.forEach(r=>r.value.items.forEach((v:any)=>unique.set(String(v.vod_id),v)));
+      return {source:s.key,list:Array.from(unique.values()).slice(0,60).map((v:any)=>dramaItem(v,s)),hasMore:ok.some(r=>r.value.hasMore)};
     }
   }else throw new Error('Unknown action');
   const d=await fetchCms(s,params);
