@@ -1,0 +1,37 @@
+name: Publish short-drama test image
+on:
+  push:
+    branches: [feature/short-drama]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - '.github/workflows/short-drama-publish.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: short-drama-test-publish
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish isolated test tag
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/vxiaonanv/lunatv:short-drama-test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
