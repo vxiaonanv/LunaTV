@@ -1,6 +1,6 @@
 import { NextRequest,NextResponse } from 'next/server';
 import {getAuthInfoFromCookie} from '@/lib/auth';
-import {getConfig,clearConfigCache} from '@/lib/config';
+import {getConfig,setCachedConfig} from '@/lib/config';
 import {db} from '@/lib/db';
 import {safeApi} from '@/lib/shortdrama';
 export const runtime='nodejs';
@@ -24,7 +24,7 @@ export async function POST(r:NextRequest){
   seen.add(s.key);return {key:s.key,name:s.name,api:s.api,disabled:!!s.disabled};
  });
  const config=await getConfig();config.ShortDramaConfig={enabled:body.enabled,sources};
- await db.saveAdminConfig(config);clearConfigCache();
+ await db.saveAdminConfig(config);await setCachedConfig(config);
  return NextResponse.json({ok:true});
  }catch{return NextResponse.json({error:'Invalid config'},{status:400});}
 }
