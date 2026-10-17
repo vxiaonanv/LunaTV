@@ -50,7 +50,7 @@ export default function ShortDramaAdminPage(){
  const remove=(key:string)=>{if(window.confirm('确定删除这个短剧源吗？'))void persist({...config,sources:config.sources.filter(x=>x.key!==key)});};
  return <PageLayout activePath='/admin'>
  <div className='max-w-5xl mx-auto px-4 sm:px-8 py-8 text-gray-900 dark:text-gray-100 space-y-6'>
- <div className='flex gap-3 justify-between items-center'><div><Link href='/admin' className='text-green-600 hover:underline text-sm'>← 返回管理员设置</Link><h1 className='text-2xl font-bold mt-3'>短剧源管理</h1><p className='text-sm text-gray-500 mt-2'>独立于普通影视源，管理 CMS 短剧接口；网页和 TV 端共用。</p></div><button onClick={()=>{setEditor({...empty});setOriginalKey(null);setError('');}} disabled={loading||saving} className='px-4 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50'>添加短剧源</button></div>
+ <div className='flex gap-3 justify-between items-center'><div><Link href='/admin' className='text-green-600 hover:underline text-sm'>← 返回管理员设置</Link><h1 className='text-2xl font-bold mt-3'>短剧配置</h1><p className='text-sm text-gray-500 mt-2'>独立于普通影视源，管理 CMS 短剧接口；网页和 TV 端共用。</p></div><button onClick={()=>{setEditor({...empty});setOriginalKey(null);setError('');}} disabled={loading||saving} className='px-4 py-2 rounded-lg bg-green-600 text-white disabled:opacity-50'>添加短剧源</button></div>
  {error&&<p role='alert' className='text-red-500'>{error}</p>}
  {message&&<p role='status' className='text-green-600'>{message}</p>}
  {loading?<p>正在读取短剧配置…</p>:<>
