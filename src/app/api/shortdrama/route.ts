@@ -25,7 +25,29 @@ export async function GET(req:NextRequest){
   const params:Record<string,string>={ac:'detail',pg:String(page)};
   if(action==='search'){
     const wd=p.get('wd');if(!wd||wd.length>100)throw new Error('Invalid keyword');
-    params.wd=wd;
+    // Some CMS implementations reject ac=detail&wd or return invalid JSON.
+    // Try both supported search conventions before falling back to filtering
+    // their populated short-drama categories.
+    const candidates=[{ac:'videolist',wd,pg:String(page)},{ac:'detail',wd,pg:String(page)}];
+    for(const candidate of candidates){
+      try{
+        const found=await fetchCms(s,candidate);
+        if(Array.isArray(found.list)){
+          const filtered=found.list.filter((v:any)=>String(v.vod_name||'').toLocaleLowerCase().includes(wd.toLocaleLowerCase()));
+          if(filtered.length||Number(found.recordcount||0)===0){
+            return {source:s.key,list:filtered.slice(0,30).map((v:any)=>dramaItem(v,s)),hasMore:Number(found.page||1)<Number(found.pagecount||1)};
+          }
+        }
+      }catch{ /* Try alternate CMS search syntax. */ }
+    }
+    const categories=await dramaCategories(s);
+    const child=categories.filter((c:{type_name:string})=>c.type_name!=='短剧').slice(0,12);
+    const batches=await Promise.allSettled(child.map((c:{type_id:number})=>fetchCms(s,{ac:'detail',t:String(c.type_id),pg:String(page)})));
+    const ok=batches.filter((r):r is PromiseFulfilledResult<any>=>r.status==='fulfilled');
+    if(!ok.length)throw new Error('Search unavailable for this source');
+    const found=new Map<string,any>();
+    ok.forEach(r=>(Array.isArray(r.value.list)?r.value.list:[]).forEach((v:any)=>{if(String(v.vod_name||'').toLocaleLowerCase().includes(wd.toLocaleLowerCase()))found.set(String(v.vod_id),v);}));
+    return {source:s.key,list:Array.from(found.values()).slice(0,30).map((v:any)=>dramaItem(v,s)),hasMore:ok.some(r=>Number(r.value.page||1)<Number(r.value.pagecount||1))};
   }else if(action==='list'){
     const category=p.get('category');
     if(category)params.t=category;
