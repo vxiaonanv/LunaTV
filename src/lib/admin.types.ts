@@ -31,6 +31,7 @@ export interface AdminConfig {
       enabledApis: string[];
     }[];
   };
+  ShortDramaConfig?: { enabled: boolean; sources: { key: string; name: string; api: string; disabled?: boolean }[] }; 
   SourceConfig: {
     key: string;
     name: string;
