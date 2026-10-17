@@ -36,4 +36,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v100.1.4 --target "$GITHUB_SHA" --title "LunaTV 100.1.4" --notes "短剧功能正式版：分类、列表、搜索、详情、播放；短剧配置面板；TV 短剧接口。" --verify-tag
+          gh release create v100.1.4 --target "$GITHUB_SHA" --title "LunaTV 100.1.4" --notes "短剧功能正式版：分类、列表、搜索、详情、播放；短剧配置面板；TV 短剧接口。"
