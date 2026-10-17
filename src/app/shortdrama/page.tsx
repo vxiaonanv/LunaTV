@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import PageLayout from '@/components/PageLayout';
 
 type Category = { type_id: number; type_name: string };
@@ -7,6 +8,7 @@ type Drama = { id: string; source: string; name: string; cover: string; descript
 type ListResult = { list?: Drama[]; hasMore?: boolean; error?: string; disabled?: boolean };
 const endpoint = '/api/shortdrama';
 export default function ShortDramaPage() {
+  const router=useRouter();
   const [categories,setCategories]=useState<Category[]>([]);
   const [category,setCategory]=useState('');
   const [items,setItems]=useState<Drama[]>([]);
@@ -78,7 +80,7 @@ export default function ShortDramaPage() {
       {loading&&<p>加载中…</p>}
       {!loading&&items.length===0&&<p className='text-gray-500'>暂无短剧，请检查数据源或更换分类。</p>}
       <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4'>
-        {items.map((item,i)=><button key={item.source+item.id+i} onClick={()=>void open(item)} className='text-left group'>
+        {items.map((item,i)=><button key={item.source+item.id+i} onClick={()=>router.push('/shortdrama/play?'+new URLSearchParams({id:item.id,source:item.source}).toString())} className='text-left group'>
           {item.cover?<img loading='lazy' src={item.cover} alt={item.name} className='w-full aspect-[2/3] object-cover rounded-lg group-hover:ring-2 ring-green-500'/>:<div className='w-full aspect-[2/3] rounded-lg bg-gray-700'/>}
           <span className='block mt-2 text-sm line-clamp-2'>{item.name}</span>
         </button>)}
