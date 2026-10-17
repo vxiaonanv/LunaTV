@@ -4689,7 +4689,7 @@ function AdminPageClient() {
           </CollapsibleTab>
 
           <CollapsibleTab
-            title='短剧源管理'
+            title='短剧配置'
             icon={<Settings size={20} className='text-gray-600 dark:text-gray-400' />}
             isExpanded={expandedTabs.shortDrama}
             onToggle={() => toggleTab('shortDrama')}
