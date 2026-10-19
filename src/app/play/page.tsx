@@ -1333,16 +1333,23 @@ function PlayPageClient() {
               video.hls.destroy();
             }
             const hls = new Hls({
-              debug: false, // 关闭日志
-              enableWorker: true, // WebWorker 解码，降低主线程压力
-              lowLatencyMode: true, // 开启低延迟 LL-HLS
+              debug: false,
+              enableWorker: true, // 将 HLS 转封装等工作交给 Web Worker
+              lowLatencyMode: false, // 点播优先稳定缓冲，不强求直播低延迟
+              progressive: true, // 实验性流式处理；测试分支先观察兼容性
+              startFragPrefetch: true, // 提前请求首个媒体分片
+              testBandwidth: false, // 跳过起播带宽测试，适用于快速起播测试
 
-              /* 缓冲/内存相关 */
-              maxBufferLength: 30, // 前向缓冲最大 30s，过大容易导致高延迟
-              backBufferLength: 30, // 仅保留 30s 已播放内容，避免内存占用
-              maxBufferSize: 60 * 1000 * 1000, // 约 60MB，超出后触发清理
+              /* 点播缓冲：谨慎控制内存，避免低内存设备持续膨胀 */
+              maxBufferLength: 45,
+              maxMaxBufferLength: 90,
+              backBufferLength: 30,
+              maxBufferSize: 80 * 1000 * 1000,
+              maxBufferHole: 0.5,
+              nudgeOffset: 0.1,
+              nudgeMaxRetry: 5,
 
-              /* 自定义loader */
+              /* 自定义loader：保留原版广告过滤逻辑 */
               loader: blockAdEnabledRef.current
                 ? CustomHlsJsLoader
                 : Hls.DefaultConfig.loader,
