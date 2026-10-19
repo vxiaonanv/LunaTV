@@ -1,4 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
+import {fetchHongguoList} from '@/lib/hongguo';
 import {getSources,fetchCategory} from '@/lib/shortdrama-tv';
 export const dynamic='force-dynamic';
 export async function GET(req:NextRequest){
@@ -6,6 +7,10 @@ export async function GET(req:NextRequest){
  if(!categoryId||!/^\d+$/.test(categoryId))return NextResponse.json({error:'Invalid categoryId'},{status:400});
  const page=Number(p.get('page')||1),size=Number(p.get('size')||20);
  if(!Number.isInteger(page)||page<1||page>100||!Number.isInteger(size)||size<1||size>100)return NextResponse.json({error:'Invalid page or size'},{status:400});
+ if(source==='hongguo'||(!source&&['1','2','3'].includes(categoryId))) {
+   try{return NextResponse.json(await fetchHongguoList(categoryId,page,size));}
+   catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Hongguo unavailable'},{status:502});}
+ }
  const sources=await getSources(source);
  if(!sources.length)return NextResponse.json({list:[],hasMore:false});
  const settled=await Promise.allSettled(sources.map(s=>fetchCategory(s,categoryId,page,size)));
