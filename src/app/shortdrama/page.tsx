@@ -28,7 +28,7 @@ export default function ShortDramaPage() {
       fetch(endpoint+'?action=categories').then(r=>r.json()),
       fetch(endpoint+'?action=sources').then(r=>r.json()),
     ]).then(([c,s])=>{
-      const cats=(c.sources||[]).flatMap((group:{categories:Category[]})=>group.categories||[]) as Category[];
+      const cats=[{type_id:1,type_name:'真人剧'},{type_id:2,type_name:'漫剧'},{type_id:3,type_name:'AI剧'},...(c.sources||[]).flatMap((group:{categories:Category[]})=>group.categories||[])] as Category[];
       setCategories(Array.from(new Map(cats.map(x=>[String(x.type_id),x])).values()));
       if(Array.isArray(s)){setSources(s);if(s.length===1)setSource(s[0].key);}
     }).catch(()=>setError('分类加载失败，请检查登录或短剧源配置'));
