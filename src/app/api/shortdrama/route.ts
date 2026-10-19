@@ -2,6 +2,7 @@
    GET ?action=categories|list|search|detail&source=...&page=1&category=...&wd=...&id=...
 */
 import {NextRequest,NextResponse} from 'next/server';
+import {HONGGUO_SOURCE,HONGGUO_CATEGORIES,fetchHongguoList} from '@/lib/hongguo';
 import {activeDramaSources,fetchCms,dramaCategories,dramaItem} from '@/lib/shortdrama';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -9,8 +10,19 @@ export async function GET(req:NextRequest){
  try{
  const p=req.nextUrl.searchParams,action=p.get('action')||'list';
  const sources=await activeDramaSources();
+ // Keep Hongguo explicit while playback/detail are still under integration.
+ if(action==='sources')return NextResponse.json([{key:HONGGUO_SOURCE,name:'红果短剧（数据测试）'},...sources.map(({key,name})=>({key,name}))]);
+ if(p.get('source')===HONGGUO_SOURCE){
+  if(action==='categories')return NextResponse.json({sources:[{source:HONGGUO_SOURCE,categories:HONGGUO_CATEGORIES}]});
+  if(action==='list'){
+   const category=p.get('category')||'1';const page=Math.max(1,Math.min(100,Number(p.get('page'))||1));
+   if(!HONGGUO_CATEGORIES.some(c=>String(c.type_id)===category))return NextResponse.json({error:'Invalid Hongguo category'},{status:400});
+   try{return NextResponse.json(await fetchHongguoList(category,page,24));}
+   catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Hongguo upstream unavailable'},{status:502});}
+  }
+  return NextResponse.json({error:'红果源的搜索、详情及播放适配尚未完成，不能播放'},{status:501});
+ }
  if(!sources.length)return NextResponse.json({list:[],sources:[],disabled:true});
- if(action==='sources')return NextResponse.json(sources.map(({key,name})=>({key,name})));
  const selected=p.get('source');
  const use=selected?sources.filter(s=>s.key===selected):sources;
  if(!use.length)return NextResponse.json({error:'Unknown source'},{status:404});
