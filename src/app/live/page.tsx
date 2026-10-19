@@ -815,10 +815,17 @@ function LivePageClient() {
     const hls = new Hls({
       debug: false,
       enableWorker: true,
-      lowLatencyMode: true,
+      lowLatencyMode: true, // 直播保留低延迟策略
+      progressive: true, // 实验性流式处理
+      startFragPrefetch: true, // 提前加载首片
+      testBandwidth: false, // 缩短初次起播等待，后续仍可自适应
+      initialLiveManifestSize: 1,
       maxBufferLength: 30,
-      backBufferLength: 30,
-      maxBufferSize: 60 * 1000 * 1000,
+      backBufferLength: 15,
+      maxBufferSize: 75 * 1000 * 1000,
+      maxBufferHole: 0.5,
+      nudgeOffset: 0.1,
+      nudgeMaxRetry: 5,
       loader: CustomHlsJsLoader,
     });
 
