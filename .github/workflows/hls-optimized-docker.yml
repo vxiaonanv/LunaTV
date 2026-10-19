@@ -1,0 +1,39 @@
+name: Build HLS Optimized Docker Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/100.1.4-hls-optimized
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - '.github/workflows/hls-optimized-docker.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish isolated AMD64 test image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/vxiaonanv/lunatv:100.1.4-hls-test
+          provenance: false
